@@ -28,35 +28,40 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            timer1 = new System.Windows.Forms.Timer(components);
+            SuspendLayout();
+            // 
+            // timer1
+            // 
+            timer1.Enabled = true;
+            timer1.Interval = 300000;
+            timer1.Tick += updateTimer_Tick;
             // 
             // Watermark
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 29F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Gray;
-            this.ClientSize = new System.Drawing.Size(259, 111);
-            this.Font = new System.Drawing.Font("Fredoka", 17.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.Margin = new System.Windows.Forms.Padding(7);
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "Watermark";
-            this.Opacity = .20; //Define the opacity of Forms 
-            this.TopMost = true;
-            this.WindowState = FormWindowState.Maximized;
-            this.Paint += Watermark_Paint;
-            //this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.ShowInTaskbar = false;
-            this.TopMost = true;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.TransparencyKey = System.Drawing.Color.Gray;
-            this.WindowState = FormWindowState.Maximized;
-
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(17F, 33F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.Gray;
+            ClientSize = new Size(259, 111);
+            Font = new Font("Microsoft Sans Serif", 17.25F, FontStyle.Regular, GraphicsUnit.Point);
+            FormBorderStyle = FormBorderStyle.None;
+            Margin = new Padding(7);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "Watermark";
+            Opacity = 0.2D;
+            ShowInTaskbar = false;
+            StartPosition = FormStartPosition.CenterScreen;
+            TopMost = true;
+            TransparencyKey = Color.Gray;
+            WindowState = FormWindowState.Maximized;
+            Load += Form1_Load;
+            Paint += Watermark_Paint;
+            ResumeLayout(false);
         }
         #endregion
+
+        private System.Windows.Forms.Timer timer1;
     }
 }

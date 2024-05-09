@@ -1,19 +1,25 @@
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Forms;
+using System;
+using System.Drawing;
+using System.Diagnostics;
 
 namespace Watermark
 {
     public partial class Watermark : Form
     {
-        
-        //Attributes
-        public string User = "HS PREVENT \r\n" + "Direitos reservados \r\n" + Environment.UserName + "\r\n" + Environment.MachineName + "\r\n";
+
+        private static Mutex mutex;
+
+        //Attributes "HS PREVENT \r\n" + "Direitos reservados \r\n" +
+        public string User = Environment.UserName + "\r\n" + Environment.MachineName + "\r\n";
         private const int WS_EX_TRANSPARENT = 0x20;
         public string hora = DateTime.Now.ToLongTimeString();
         public string data = DateTime.Now.ToString("dd/MM/yyyy");
 
-
+        //status process
+        private static bool isAppRunning = false;
 
         public Watermark()
         {
@@ -21,8 +27,47 @@ namespace Watermark
             ///<summary> This method contains the code that creates and initializes the user interface objects dragged on the form surface with the values provided by the programmer, using the Property Grid of the Form Designer. </summary>
             ///
             InitializeComponent();
-            this.Location = Screen.AllScreens[0].WorkingArea.Location;
 
+            Screen[] screens = Screen.AllScreens;
+
+            foreach (Screen screen in screens)
+            {
+                this.StartPosition = FormStartPosition.Manual;
+                this.Location = screen.WorkingArea.Location;
+                this.Size = screen.WorkingArea.Size;
+                this.Show();
+            }
+            //this.Location = Screen.AllScreens[0].WorkingArea.Location;
+            timer1.Enabled = true;
+            //if (!mutex.WaitOne(TimeSpan.Zero, true))
+            //{
+            //    this.Close();
+            //    //MessageBox.Show("app is running");
+            //}
+
+            bool createdNew;
+            mutex = new Mutex(true, "MyAppMutex", out createdNew);
+
+            if (!createdNew)
+            {
+             
+                Environment.Exit(0); 
+            }
+
+            this.FormClosing += Watermark_FormClosing;
+        }
+
+        private void Watermark_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // 
+            mutex.ReleaseMutex();
+        }
+        private bool IsAppAlreadyRunning()
+        { 
+            Process[] processes = Process.GetProcessesByName("Watermark");
+
+            // 
+            return processes.Length > 1;
         }
 
         /// <summary>
@@ -44,26 +89,38 @@ namespace Watermark
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+
+        private void updateTimer_Tick(object sender, EventArgs e)
+        {
+            // 
+            User = Environment.UserName + "\r\n" + Environment.MachineName + "\r\n";
+            hora = DateTime.Now.ToLongTimeString();
+            data = DateTime.Now.ToString("dd/MM/yyyy");
+
+            //
+            this.Invalidate();
+        }
+
         private void Watermark_Paint(object sender, PaintEventArgs e)
         {
-            
+
             if (User != "")
             {
                 // play with this drawing code to change your "watermark"  
                 SizeF szF1 = e.Graphics.MeasureString(User + DateTime.Now.ToLongTimeString() + DateTime.Now.ToString("dd/MM/yyyy"), this.Font);
                 int max = Math.Max(this.Width, this.Height);
-                
                 Antialising(e);
-                
-                for (int y = 0; y <= max; y = y + (2 * (int)szF1.Height))
+
+                e.Graphics.RotateTransform(45);
+                for (int y = -max; y <= 5 * max; y = y + (4 * (int)szF1.Height))
                 {
-                    for (int x = 0; x <= max; x = x + (2 * (int)szF1.Height))
+                    for (int x = -max; x <= 5 * max; x = x + (4 * (int)szF1.Height))
                     {
                         //e.Graphics.DrawString(dados, this.Font, Brushes.Black, 0, y);
-                        var test = new SolidBrush(Color.FromArgb(255, Color.Red));
-                        
+                        var test = new SolidBrush(Color.FromArgb(128, Color.Gray));
+
                         e.Graphics.DrawString(User + DateTime.Now.ToLongTimeString(), this.Font, test, x, y);
-                        
+
                         //Bibliotecas System.Drawing tem a classe Graphics e Drawing2D
                         //DrawString, DrawPath, Pen, SolidBrush,Brush
                     }
